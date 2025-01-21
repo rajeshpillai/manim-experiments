@@ -12,33 +12,37 @@ class LinearRegressionExplainer(Scene):
         """
         Scene 1: Intro text about the purpose of linear regression.
         """
-        title = Text("Simple Linear Regression", font_size=48)
-        subtitle = Text("Explaining the Basics", font_size=24).next_to(title, DOWN)
+        title = Tex("Simple Linear Regression", font_size=48, color=WHITE)
+        subtitle = Tex("Explaining the Basics", font_size=24, color=WHITE).next_to(title, DOWN)
         self.play(FadeIn(title, shift=UP), FadeIn(subtitle, shift=UP))
         self.wait(2)
         self.play(FadeOut(title, shift=DOWN), FadeOut(subtitle, shift=DOWN))
 
     def plot_data_points(self):
         """
-        Scene 2: Show a coordinate system and data points.
+        Scene 2: Show a coordinate system with axis labels and data points.
         """
         axes = Axes(
             x_range=[0, 10, 1],
             y_range=[0, 10, 1],
-            x_length=6,
-            y_length=6,
-            axis_config={"include_numbers": False},
+            x_length=7,
+            y_length=7,
+            axis_config={"include_numbers": False, "color": WHITE},
+            tips=False  # Remove arrow tips for a cleaner look
         )
         axes.center()
+
+        # Add axis labels using MathTex for better rendering
         axis_labels = axes.get_axis_labels(
-            Tex("X"), Tex("Y")
+            MathTex("X", " \\text{(Hours of Study)}", font_size=24, color=WHITE),
+            MathTex("Y", " \\text{(Test Scores)}", font_size=24, color=WHITE)
         )
 
         self.play(Create(axes), FadeIn(axis_labels))
         self.wait(1)
 
         # Example data points
-        data_points = [(1,2), (2,3.5), (3,2.5), (4,5), (5,6), (6,7.5), (7,7), (8,9)]
+        data_points = [(1, 2), (2, 3.5), (3, 2.5), (4, 5), (5, 6), (6, 7.5), (7, 7), (8, 9)]
         dots = VGroup()
         for x, y in data_points:
             dot = Dot(axes.coords_to_point(x, y), color=BLUE)
@@ -53,13 +57,15 @@ class LinearRegressionExplainer(Scene):
         )
         self.wait(1)
 
+        # Explanation text positioned below the axes
         explanation = Tex(
             "We have data points:\\\\"
-            "X = hours of study,\\\\"
-            "Y = test scores (for example).",
-            font_size=32
+            "X = Hours of Study,\\\\"
+            "Y = Test Scores.",
+            font_size=32,
+            color=WHITE
         )
-        explanation.to_edge(UP)
+        explanation.next_to(axes, DOWN).shift(DOWN * 0.5)  # Position below the axes
 
         self.play(Write(explanation))
         self.wait(3)
@@ -110,9 +116,13 @@ class LinearRegressionExplainer(Scene):
         self.play(Transform(initial_line, best_fit_line), run_time=2)
         self.wait(1)
 
-        # Show equation
-        equation_text = Tex(r"$\hat{y} = \beta_0 + \beta_1 x$", font_size=36)
-        equation_text.next_to(self.axes, UP).shift(LEFT*1.5)
+        # Show equation below the axes to prevent cutting off
+        equation_text = MathTex(
+            r"\hat{y} = \beta_0 + \beta_1 x",
+            font_size=36,
+            color=WHITE
+        )
+        equation_text.next_to(self.axes, DOWN).shift(DOWN * 0.5)  # Position below the axes
 
         self.play(FadeIn(equation_text))
         self.wait(2)
@@ -128,17 +138,14 @@ class LinearRegressionExplainer(Scene):
             # Dot coords
             x_dot, y_dot = self.axes.point_to_coords(dot.get_center())
 
-            # We compute the y on the regression line at x_dot
-            # We'll use the final line's slope & intercept from the example:
-            # slope ~ (7 - 1.5)/ (8 - 0) = 5.5 / 8 = 0.6875
-            # intercept ~ 1.5
+            # Compute y on the regression line at x_dot
             slope = 0.6875
             intercept = 1.5
             y_line = slope * x_dot + intercept
 
             # Create a line from dot to the line
             start_point = dot.get_center()
-            end_point   = self.axes.coords_to_point(x_dot, y_line)
+            end_point = self.axes.coords_to_point(x_dot, y_line)
             residual_line = DashedLine(start_point, end_point, color=RED)
             residual_lines.add(residual_line)
 
@@ -158,9 +165,10 @@ class LinearRegressionExplainer(Scene):
             "This is how Simple Linear Regression finds the line \\\\"
             "that best fits your data by minimizing residuals.\\\\"
             "Use it for predictions and insights!",
-            font_size=32
+            font_size=32,
+            color=WHITE
         )
-        conclusion.to_edge(UP)
+        conclusion.to_edge(DOWN).shift(LEFT * 2)  # Position at the bottom left
 
         self.play(Write(conclusion))
         self.wait(3)
@@ -169,8 +177,10 @@ class LinearRegressionExplainer(Scene):
         self.play(*[FadeOut(mob) for mob in self.mobjects])
         self.wait()
 
-        # Final text
-        thank_you = Text("Thank you for watching!", font_size=48)
+        # Final text positioned at the top right to prevent cutoff
+        thank_you = Tex("Thank you for watching!", font_size=48, color=WHITE)
+        thank_you.to_edge(UP).shift(RIGHT * 1.5)  # Position at the top right
+
         self.play(FadeIn(thank_you, shift=UP))
         self.wait(2)
         self.play(FadeOut(thank_you, shift=DOWN))

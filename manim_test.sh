@@ -1,1 +1,1 @@
-manim -pql manim_test.py MinimalTestScene
+manim -pql 01-manim_test.py MinimalTestScene
